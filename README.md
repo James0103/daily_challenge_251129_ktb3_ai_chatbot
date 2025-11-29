@@ -4,3 +4,9 @@
 
 * 과제 : 웹소켓을 이용한 AI 챗봇 구현
 * 링크 : https://two51129-ai-chatbot-daily-challenge.onrender.com/
+
+---
+
+* 미구현 기능
+1. 프롬프트 엔지니어링을 더 디테일하게해야합니다
+2. 세션 체크는 브라우저의 개발자도구에서 console에서 확인할수 있습니다
