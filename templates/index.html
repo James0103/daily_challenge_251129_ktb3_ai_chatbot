@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat</title>
+    </head>
+    <body>
+        <h1>WebSocket Chat</h1>
+        <form action="" onsubmit="sendMessage(event)">
+            <input type="text" id="messageText" autocomplete="off"/>
+            <button>Send</button>
+        </form>
+        <div id='messages'>
+        </div>
+        <script>
+            const CONFIG = {
+                websocket_url: '{{ websocket_url }}'
+            };
+            var ws = new WebSocket(CONFIG.websocket_url);
+            ws.onopen = function(event) {
+                console.log('WebSocket connected');
+                // sendButton.disabled = false;
+            };
+
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                console.log(data)
+                var messages = document.getElementById('messages')
+                if (data.type === 'chunk') {
+                    messages.textContent += data.content
+                }
+            };
+
+            function sendMessage(event) {
+                var input = document.getElementById("messageText")
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(input.value);
+                    input.value = ''
+                } else {
+                    console.error('WebSocket not ready:', ws.readyState);
+                }
+                event.preventDefault()
+            }
+        </script>
+    </body>
+</html>

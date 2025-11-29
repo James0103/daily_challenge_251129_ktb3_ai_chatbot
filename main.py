@@ -1,21 +1,22 @@
-import os
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.responses import PlainTextResponse, HTMLResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
-from dotenv import load_dotenv
-
-
-load_dotenv()
-GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
+from fastapi.templating import Jinja2Templates
+from controller.gemini_controller import send_message_stream
 
 app = FastAPI()
 
+templates = Jinja2Templates(directory="templates")
+
 # 프론트엔드 파일 서빙
 @app.get("/")
-def index():
-  return FileResponse("static/index.html")
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
+def index(request: Request):
+  return templates.TemplateResponse(
+     "index.html",
+     {
+      "request": request,
+      "websocket_url": f"ws://{request.url.netloc}/ws"
+     }
+  )
 
 # 웹소켓 부분
 @app.websocket("/ws")
@@ -23,4 +24,10 @@ async def websocket_endpoint(websocket: WebSocket):
   await websocket.accept()
   while True:
       data = await websocket.receive_text()
-      await websocket.send_text(f"Message text was: {data}")
+      async for chunk in send_message_stream(data):
+        await websocket.send_json({
+          "type": "chunk",
+          "content": chunk
+        })
+      
+      
