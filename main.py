@@ -20,7 +20,7 @@ def index(request: Request):
      "index.html",
      {
       "request": request,
-      "websocket_url": f"ws://{request.url.netloc}/ws"
+      "websocket_url": f"wss://{request.url.netloc}/ws"
      }
   )
 
